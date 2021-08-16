@@ -1,0 +1,14 @@
+delta DIncomeWithCategoryModel;
+uses MIncomeModel;
+
+modifies interface Income {
+    adds String getCategory();
+    adds Unit setCategory(String category);
+}
+
+modifies class IncomeImpl {
+    adds String category = "";
+
+    adds String getCategory() { return this.category; }
+    adds Unit setCategory(String category) { this.category = category; }
+}

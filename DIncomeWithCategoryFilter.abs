@@ -1,0 +1,14 @@
+delta DIncomeWithCategoryFilter;
+uses MIncomeFilter;
+
+modifies interface IncomeFilter {
+    adds String getCategory();
+    adds Unit setCategory(String category);
+}
+
+modifies class IncomeFilterImpl {
+    adds String category = "";
+
+    adds String getCategory() { return this.category; }
+    adds Unit setCategory(String category) { this.category = category; }
+}

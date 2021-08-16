@@ -1,0 +1,222 @@
+delta DIncomeWithCategoryService;
+uses MIncomeService;
+    
+modifies class IncomeServiceImpl {
+    modifies List<IncomeResponse> list(ABSHttpRequest request) {
+        IncomeEntity entity = new local IncomeEntityImpl();
+        IncomeFilter filter = new local IncomeFilterImpl();
+        Utility utility = new local UtilityImpl();
+
+        Bool hasKeyId = request.hasKey("id");
+        Bool hasKeyIdCoas = request.hasKey("idCoas");
+        Bool hasKeyIdPrograms = request.hasKey("idPrograms");
+        Bool hasKeyCategory = request.hasKey("category");
+
+        if (hasKeyId) {
+            String idStr = request.getInput("id");
+            Int id = utility.stringToInteger(idStr);
+            filter.setId(id);
+        }
+
+        if (hasKeyIdCoas) {
+            String idCoas = request.getInput("idCoas");
+            filter.setIdCoas(idCoas);
+        }
+
+        if (hasKeyIdPrograms) {
+            String idPrograms = request.getInput("idPrograms");
+            filter.setIdPrograms(idPrograms);
+        }
+		
+        if (hasKeyCategory) {
+            String category = request.getInput("category");
+            filter.setCategory(category);
+        }
+
+        List<Income> result = entity.findIncomes(filter);
+        
+        return this.generateIncomeResponses(result, 0);
+    }
+
+    modifies List<IncomeResponse> listAdmin(ABSHttpRequest request) {
+        IncomeEntity entity = new local IncomeEntityImpl();
+        IncomeFilter filter = new local IncomeFilterImpl();
+        Utility utility = new local UtilityImpl();
+
+        Bool hasKeyId = request.hasKey("id");
+        Bool hasKeyIdCoas = request.hasKey("idCoas");
+        Bool hasKeyIdPrograms = request.hasKey("idPrograms");
+        Bool hasKeyCategory = request.hasKey("category");
+
+        if (hasKeyId) {
+            String idStr = request.getInput("id");
+            Int id = utility.stringToInteger(idStr);
+            filter.setId(id);
+        }
+
+        if (hasKeyIdCoas) {
+            String idCoas = request.getInput("idCoas");
+            filter.setIdCoas(idCoas);
+        }
+
+        if (hasKeyIdPrograms) {
+            String idPrograms = request.getInput("idPrograms");
+            filter.setIdPrograms(idPrograms);
+        }
+		
+        if (hasKeyCategory) {
+            String category = request.getInput("category");
+            filter.setCategory(category);
+        }
+
+        List<Income> result = entity.findIncomes(filter);
+        
+        return this.generateIncomeResponses(result, 1);
+    }
+
+    modifies List<IncomeResponse> save(ABSHttpRequest request) {
+        IncomeEntity entity = new local IncomeEntityImpl();
+        ProgramEntity programEntity = new local ProgramEntityImpl();
+        ChartOfAccountEntity coaEntity = new local ChartOfAccountEntityImpl();
+
+        Utility utility = new local UtilityImpl();
+
+        String datestamp = request.getInput("datestamp");
+        String description = request.getInput("description");
+        String amountStr = request.getInput("amount");
+        Int amount = utility.stringToInteger(amountStr);
+        String idProgram = request.getInput("idProgram");
+        Int idProgramInt = utility.stringToInteger(idProgram);
+        String idCoa = request.getInput("idCoa");
+        Int idCoaInt = utility.stringToInteger(idCoa);
+        String paymentMethod = "";
+        String category = "";
+        
+        Bool hasKeyPaymentMethod = request.hasKey("paymentMethod");
+        if (hasKeyPaymentMethod) {
+            paymentMethod = request.getInput("paymentMethod");
+        }
+		
+        Bool hasKeyCategory = request.hasKey("category");
+        if (hasKeyCategory) {
+            category = request.getInput("category");
+        }
+
+        Program program = programEntity.findById(idProgram);
+        ChartOfAccount coa = coaEntity.findById(idCoa);
+
+        List<Income> result = entity.saveIncome(datestamp, description, amount, idProgramInt, idCoaInt, paymentMethod, category);
+        return this.generateIncomeResponses(result, 1);
+    }
+
+    modifies IncomeResponse update(ABSHttpRequest request) {
+        IncomeEntity entity = new local IncomeEntityImpl();
+        ProgramEntity programEntity = new local ProgramEntityImpl();
+        ChartOfAccountEntity coaEntity = new local ChartOfAccountEntityImpl();
+
+        Utility utility = new local UtilityImpl();
+
+        String id = request.getInput("id");
+        String datestamp = request.getInput("datestamp");
+        String description = request.getInput("description");
+        String amountStr = request.getInput("amount");
+        Int amount = utility.stringToInteger(amountStr);
+        String idProgram = request.getInput("idProgram");
+        Int idProgramInt = utility.stringToInteger(idProgram);
+        String idCoa = request.getInput("idCoa");
+        Int idCoaInt = utility.stringToInteger(idCoa);
+
+        String paymentMethod = "";
+		String category = "";
+        
+        Bool hasKeyPaymentMethod = request.hasKey("paymentMethod");
+        if (hasKeyPaymentMethod) {
+            paymentMethod = request.getInput("paymentMethod");
+        }
+		
+        Bool hasKeyCategory = request.hasKey("category");
+        if (hasKeyCategory) {
+            category = request.getInput("category");
+        }
+
+        Program program = programEntity.findById(idProgram);
+        ChartOfAccount coa = coaEntity.findById(idCoa);
+
+        Income income = entity.updateIncome(id, datestamp, description, amount, idProgramInt, idCoaInt, paymentMethod, category);
+        return this.transformIntoIncomeResponse(income, 1); 
+    }
+
+    modifies List<IncomeResponse> edit(ABSHttpRequest request) {
+        IncomeEntity entity = new local IncomeEntityImpl();
+        ProgramEntity programEntity = new local ProgramEntityImpl();
+        ChartOfAccountEntity coaEntity = new local ChartOfAccountEntityImpl();
+
+        Utility utility = new local UtilityImpl();
+
+        String id = request.getInput("id");
+        String datestamp = request.getInput("datestamp");
+        String description = request.getInput("description");
+        String amountStr = request.getInput("amount");
+        Int amount = utility.stringToInteger(amountStr);
+        String idProgram = request.getInput("idProgram");
+        Int idProgramInt = utility.stringToInteger(idProgram);
+        String idCoa = request.getInput("idCoa");
+        Int idCoaInt = utility.stringToInteger(idCoa);
+
+        String paymentMethod = "";
+		String category = "";
+        
+        Bool hasKeyPaymentMethod = request.hasKey("paymentMethod");
+        if (hasKeyPaymentMethod) {
+            paymentMethod = request.getInput("paymentMethod");
+        }
+		
+        Bool hasKeyCategory = request.hasKey("category");
+        if (hasKeyCategory) {
+            category = request.getInput("category");
+        }
+
+        Program program = programEntity.findById(idProgram);
+        ChartOfAccount coa = coaEntity.findById(idCoa);
+
+        List<Income> result = entity.editIncome(id, datestamp, description, amount, idProgramInt, idCoaInt, paymentMethod, category);
+        return this.generateIncomeResponses(result, 1);
+    }
+
+    modifies IncomeResponse transformIntoIncomeResponse(Income income, Int userType) {
+        Int idProgram = income.getIdProgram();
+        String idProgramStr = toString(idProgram);
+        ProgramEntity programEntity = new local ProgramEntityImpl();
+        Program program = programEntity.findById(idProgramStr);
+
+        String programName = program.getName();
+
+        IncomeResponse response = new local IncomeResponseImpl();
+        Int id = income.getId();
+        String datestamp = income.getDatestamp();
+        Int amount = income.getAmount();
+        Int idCoa = income.getIdCoa();
+        String paymentMethod = income.getPaymentMethod();
+        String description = "";
+        ChartOfAccountEntity coaEntity = new local ChartOfAccountEntityImpl();
+        String idCoaString = toString(idCoa);
+        ChartOfAccount selectedCoa = coaEntity.findById(idCoaString);
+        String coaName = selectedCoa.getName();
+        if(userType == 1){   
+            description = income.getDescription();
+        }
+        String category = income.getCategory();
+		
+        response.setId(id);
+        response.setDatestamp(datestamp);
+        response.setDescription(description);
+        response.setAmount(amount);
+        response.setIdProgram(idProgram);
+        response.setIdCoa(idCoa);
+        response.setPaymentMethod(paymentMethod);
+        response.setProgramName(programName);
+        response.setCoaName(coaName);
+        response.setCategory(category);
+        return response;
+    }
+}

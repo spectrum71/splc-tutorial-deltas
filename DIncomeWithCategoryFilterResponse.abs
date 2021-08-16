@@ -1,0 +1,14 @@
+delta DIncomeWithCategoryResponse;
+uses MIncomeResponse;
+
+modifies interface IncomeResponse {
+    adds String getCategory();
+    adds Unit setCategory(String category);
+}
+
+modifies class IncomeResponseImpl {
+    adds String category = "";
+
+    adds String getCategory() { return this.category; }
+    adds Unit setCategory(String category) { this.category = category; }
+}

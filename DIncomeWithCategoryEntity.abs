@@ -1,0 +1,126 @@
+delta DIncomeWithCategoryEntity;
+uses MIncomeEntity;
+
+modifies interface IncomeEntity {
+    removes List<Income> saveIncome(String datestamp, String description, Int amount, Int program, Int coa, String paymentMethod);
+    removes Income updateIncome(String id, String datestamp, String description, Int amount, Int program, Int coa, String paymentMethod);
+	removes List<Income> editIncome(String id, String datestamp, String description, Int amount, Int program, Int coa, String paymentMethod);
+
+    adds List<Income> saveIncome(String datestamp, String description, Int amount, Int program, Int coa, String paymentMethod, String category);
+    adds Income updateIncome(String id, String datestamp, String description, Int amount, Int program, Int coa, String paymentMethod, String category);
+	adds List<Income> editIncome(String id, String datestamp, String description, Int amount, Int program, Int coa, String paymentMethod, String category);
+}
+
+modifies class IncomeEntityImpl {
+	
+    modifies List<Income> findIncomes(IncomeFilter filter) {
+        IncomeDb orm = new local IncomeDbImpl();
+        SQLHelper sqlHelper = new local SQLHelperImpl();
+        List<String> whereClause = Nil;
+
+        String idPrograms = filter.getIdPrograms();
+        String idCoas = filter.getIdCoas();
+        String description = filter.getDescription();
+		String category = filter.getCategory();
+        Int id = filter.getId();
+
+        if (idPrograms != "") {
+            String inStatement = sqlHelper.createInStatement("idProgram",idPrograms);
+            String condition = "("+ inStatement +")";
+            whereClause = appendright(whereClause, condition);
+        }
+
+        if (idCoas != "") {
+            String inStatement = sqlHelper.createInStatement("idCoa",idCoas);
+            String condition = "(" + inStatement + ")";
+            whereClause = appendright(whereClause, condition);
+        }
+
+        if (description != "") {
+            String condition = "LIKE '%" + description + "%'";
+            whereClause = appendright(whereClause, condition);
+        }
+		
+        if (category != "") {
+            String condition = "category LIKE '%" + description + "%'";
+            whereClause = appendright(whereClause, condition);
+        }
+
+        if (id != 0) {
+            String idStr = toString(id);
+            String condition = "id = " + idStr;
+            whereClause = appendright(whereClause, condition);
+        }
+
+        if (isEmpty(whereClause)) {
+            String condition = "id > 0";
+            whereClause = appendright(whereClause, condition);
+        }
+
+        Int size = length(whereClause);
+        Int count = 0;
+        String conditions = "";
+
+        while(count<size) {
+            String condition = nth(whereClause, count);
+            conditions = conditions + condition;
+            count = count +1;
+
+            if (count < size) {
+                conditions = conditions + " AND ";
+            }
+        }
+
+        return orm.findAllByAttributes("MIncomeModel.IncomeImpl_c", conditions);
+    }
+	
+    removes List<Income> saveIncome(String datestamp, String description, Int amount, Int program, Int coa, String paymentMethod);
+    adds List<Income> saveIncome(String datestamp, String description, Int amount, Int program, Int coa, String paymentMethod, String category) {
+        Income income = new local IncomeImpl();
+        IncomeDb orm = new local IncomeDbImpl();
+
+        income.setDatestamp(datestamp);
+        income.setDescription(description);
+        income.setAmount(amount);
+        income.setIdProgram(program);
+        income.setIdCoa(coa);
+        income.setPaymentMethod(paymentMethod);
+		income.setCategory(category);
+        orm.save(income);
+        return this.findAllIncome();
+    }
+	
+    removes Income updateIncome(String id, String datestamp, String description, Int amount, Int program, Int coa, String paymentMethod);
+    adds Income updateIncome(String id, String datestamp, String description, Int amount, Int program, Int coa, String paymentMethod, String category) {
+        Income income = this.findById(id);
+        IncomeDb orm = new local IncomeDbImpl();
+
+        income.setDatestamp(datestamp);
+        income.setDescription(description);
+        income.setAmount(amount);
+        income.setIdProgram(program);
+        income.setIdCoa(coa);
+        income.setPaymentMethod(paymentMethod);
+		income.setCategory(category);
+        orm.update(income);
+
+        return this.findById(id);
+    }
+	
+	removes List<Income> editIncome(String id, String datestamp, String description, Int amount, Int program, Int coa, String paymentMethod);
+    adds List<Income> editIncome(String id, String datestamp, String description, Int amount, Int program, Int coa, String paymentMethod, String category) {
+        Income income = this.findById(id);
+        IncomeDb orm = new local IncomeDbImpl();
+
+        income.setDatestamp(datestamp);
+        income.setDescription(description);
+        income.setAmount(amount);
+        income.setIdProgram(program);
+        income.setIdCoa(coa);
+        income.setPaymentMethod(paymentMethod);
+		income.setCategory(category);
+        orm.update(income);
+
+        return this.findAllIncome();
+    }
+}
